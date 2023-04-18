@@ -27,11 +27,12 @@ public class AuthService : IAuthService
         {
             throw new Exception("Credenciales Incorrectas");
         }
+
         string usuariosEcuasolString = JsonConvert.DeserializeObject<string>(jsonContent) ?? "";
         var usuariosEcuasol = JsonConvert.DeserializeObject<List<EcuasolUser>>(usuariosEcuasolString) ?? new();
         foreach (var usuario in usuariosEcuasol)
         {
-            if (usuario.Emisor == codigoEmisor)
+            if (usuario.Observacion == "INGRESO EXITOSO" && usuario.Emisor == codigoEmisor)
             {
                 return true;
             }

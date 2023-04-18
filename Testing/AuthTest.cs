@@ -47,9 +47,39 @@ public class AuthTest
     }
 
     [TestMethod]
-    public void Login_ReturnsFalse_When_CredentialsAreWrong()
+    public void Login_ReturnsFalse_When_AllCredentialsAreWrong()
     {
         LoginRequest request = new("50", "5004", 2);
+        RequestResult<bool> expected = new RequestResult<bool>()
+        {
+            Error = "",
+            IsError = true,
+            Result = false
+        };
+        var resp = _controller.LogIn(request).Result;
+        Assert.AreEqual(resp.IsError, expected.IsError);
+        Assert.AreEqual(resp.Result, expected.Result);
+    }
+
+    [TestMethod]
+    public void Login_ReturnsFalse_When_UserWrong()
+    {
+        LoginRequest request = new("50", "5004u", 2);
+        RequestResult<bool> expected = new RequestResult<bool>()
+        {
+            Error = "",
+            IsError = true,
+            Result = false
+        };
+        var resp = _controller.LogIn(request).Result;
+        Assert.AreEqual(resp.IsError, expected.IsError);
+        Assert.AreEqual(resp.Result, expected.Result);
+    }
+
+    [TestMethod]
+    public void Login_ReturnsFalse_When_PasswordWrong()
+    {
+        LoginRequest request = new("5004", "5004", 2);
         RequestResult<bool> expected = new RequestResult<bool>()
         {
             Error = "",
