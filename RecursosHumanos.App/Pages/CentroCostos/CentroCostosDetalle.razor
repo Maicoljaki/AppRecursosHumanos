@@ -1,0 +1,110 @@
+﻿@page "/centroCostos/{Codigo:int}"
+
+@using RecursosHumanos.App.Data.Forms;
+@using RecursosHumanos.App.Services.CentroCostosService;
+@using RecursosHumanos.App.Services.Common;
+@using RecursosHumanos.Shared.Models;
+
+@inject DialogMsgService _dialogService;
+@inject ICentroCostosService _centroCostosService;
+@inject NavigationManager _navManager;
+
+<EditForm Model="@_form" OnValidSubmit="@(async (e) => await Guardar())">
+    <DataAnnotationsValidator />
+    <MudCard>
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h6">CentroCostosDetalle</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudNumericField Label="Código"
+                          @bind-Value="_form.Codigo" For="@(() => _form.Codigo)" />
+            <MudTextField Label="Nombre" Class="mt-3" 
+                          @bind-Value="_form.Nombre" For="@(() => _form.Nombre)" />
+        </MudCardContent>
+        <MudCardActions>
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">Guardar</MudButton>
+            <MudSpacer/>
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@Salir">Salir</MudButton>
+        </MudCardActions>
+    </MudCard>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int Codigo { get; set; }
+
+    private bool _EsNuevo => Codigo is 0;
+
+    private CentroCostosForm _form = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!firstRender)
+            return;
+
+        await Cargar();
+    }
+
+    private async Task Cargar()
+    {
+        if (_EsNuevo)
+        {
+            _form = new();
+            return;
+        }
+
+        try
+        {
+            var centroCostos = await _centroCostosService.GetByCodigo(Codigo);
+            Codigo = centroCostos.Codigo;
+            _form = new()
+            {
+                Codigo = centroCostos.Codigo,
+                Nombre = centroCostos.Nombre
+            };
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            await _dialogService.ShowDialogAsync(e.Message, true);
+        }
+    }
+
+    private async Task Guardar()
+    {
+        try
+        {
+            CentroCostos centroCostos = new(_form.Codigo, _form.Nombre);
+            if(_EsNuevo)
+            {
+                await _centroCostosService.Insert(centroCostos);
+            }
+            else
+            {
+                await _centroCostosService.Update(centroCostos);
+            }
+        }
+        catch (Exception e)
+        {
+            await _dialogService.ShowDialogAsync(e.Message, true);
+        }
+        finally
+        {
+            _navManager.NavigateTo("/centroCostos");
+        }
+    }
+
+    private void Salir()
+    {
+        _navManager.NavigateTo("/centroCostos");
+    }
+}

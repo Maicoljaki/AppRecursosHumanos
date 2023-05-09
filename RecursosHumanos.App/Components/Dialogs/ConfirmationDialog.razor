@@ -1,0 +1,43 @@
+﻿@using MudBlazor.Extensions
+@using MudBlazor.Services
+
+<MudDialog @ref="_MudDialog">
+    <DialogContent>@Message</DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => OkAction())" Color="Color.Primary">@("OK")</MudButton>
+        <MudButton OnClick="@(() => CancelAction())" Color="Color.Secondary">@("Cancel")</MudButton>
+    </DialogActions>
+</MudDialog>
+
+    @code {
+    [Parameter]
+    public string Message { get; set; } = "Deseas Continuar?";
+
+    //[Parameter]
+    //public Func<Task> OnOkAsync { get; set; } = () => Task.CompletedTask;
+
+    //[Parameter]
+    //public Action OnOk { get; set; } = () => { };
+
+    //[Parameter]
+    //public Func<Task> OnCancelAsync { get; set; } = () => Task.CompletedTask;
+
+    //[Parameter]
+    //public Action OnCancel { get; set; } = () => { };
+
+    private MudDialog? _MudDialog;
+
+    private void OkAction()
+    {
+        //OnOk();
+        //await OnOkAsync();
+        _MudDialog?.Close(DialogResult.Ok(true));
+    }
+
+    private void CancelAction()
+    {
+        //OnCancel();
+        //await OnCancelAsync();
+        _MudDialog?.Close(DialogResult.Cancel());
+    }
+}

@@ -1,0 +1,106 @@
+﻿@using RecursosHumanos.App.Services.Auth;
+@using RecursosHumanos.Shared.Models;
+@inherits LayoutComponentBase
+
+@inject ISessionService _sessionService;
+@inject IAuthenticationService _authService;
+
+@inject NavigationManager _navManager;
+
+<style>
+    .margin-top {
+        margin-top: 2em;
+    }
+</style>
+
+<PageTitle>Recursos Humanos</PageTitle>
+
+<MudThemeProvider IsDarkMode="true" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudText Typo="Typo.h5" Class="ml-3">R.R. H.H.</MudText>
+        <MudSpacer />
+        @if (_usuario is not null)
+        {
+            <MudText Typo="Typo.subtitle1" Class="ml-3">@_usuario.Nombre.Substring(0, 10)</MudText>
+            <MudText Typo="Typo.subtitle1" Class="ml-3">@_usuario.Role.Substring(0, 10)</MudText>
+        }
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+        <MudNavMenu>
+            @if (_usuario is not null)
+            {
+                <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Logout" OnClick="LogOut">Salir</MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.AttachMoney" Href="/centroCostos">Centro Costos</MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.LibraryBooks">Nomina</MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Group">Otros</MudNavLink>
+            }
+            else
+            {
+                <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.VerifiedUser" Href="/">Login</MudNavLink>
+            }
+        </MudNavMenu>
+    </MudDrawer>
+    <MudMainContent>
+        <MudContainer MaxWidth=MaxWidth.Small Class="margin-top">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+    private Usuario? _usuario = null;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!firstRender)
+            return;
+
+        await Cargar();
+    }
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    private async Task Cargar()
+    {
+        try
+        {
+            var jwt = await _sessionService.GetJwtTokenAsync();
+            if (jwt is null)
+                return;
+            var usuario = await _authService.GetFromJwt(new(jwt));
+            if (usuario is null)
+            {
+                await _sessionService.RemoveJwtToken();
+                return;
+            }
+
+            _usuario = usuario;
+        }
+        catch
+        {
+            await _sessionService.RemoveJwtToken();
+        }
+        finally
+        {
+            StateHasChanged();
+        }
+    }
+
+    private async void LogOut()
+    {
+        await _sessionService.RemoveJwtToken();
+        await Cargar();
+        _navManager.NavigateTo("/", true);
+    }
+}

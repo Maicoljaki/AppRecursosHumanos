@@ -1,0 +1,34 @@
+﻿@using RecursosHumanos.App.Components.Layouts;
+
+@using Microsoft.AspNetCore.Components.Authorization
+@using RecursosHumanos.App.Components.Authorization
+@using RecursosHumanos.App.Services.Auth;
+
+@inject AuthenticationStateProvider AuthenticationStateProvider;
+@inject ISessionService sessionService;
+
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <CustomAuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(AuthenticatedLayout)" NotAuthorizedLayout="@typeof(NonAuthenticatedLayout)">
+                <NotAuthorized>
+                    @if (context.User.Identity?.IsAuthenticated != true)
+                    {
+                        <MudAlert>401</MudAlert>
+                    }
+                    else
+                    {
+                        <MudAlert>403</MudAlert>
+                    }
+                </NotAuthorized>
+            </CustomAuthorizeRouteView>
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <PageTitle>Not found</PageTitle>
+            <LayoutView Layout="@typeof(NonAuthenticatedLayout)">
+                <MudAlert>Sorry, there's nothing at this address.</MudAlert>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>
