@@ -39,7 +39,17 @@ public class AuthenticationService : IAuthenticationService
             return AuthenticationErrors.InvalidCredentials;
         }
 
-        string usuariosEcuasolString = JsonConvert.DeserializeObject<string>(jsonContent) ?? "";
+        string usuariosEcuasolString;
+
+        try
+        {
+            usuariosEcuasolString = JsonConvert.DeserializeObject<string>(jsonContent) ?? "";
+        }
+        catch
+        {
+            usuariosEcuasolString = jsonContent;
+        }
+
         var usuariosEcuasol = JsonConvert.DeserializeObject<List<EcuasolUser>>(usuariosEcuasolString) ?? new();
         foreach (var usuario in usuariosEcuasol)
         {
