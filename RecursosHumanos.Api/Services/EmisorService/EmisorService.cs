@@ -8,17 +8,16 @@ namespace RecursosHumanos.Api.Services.EmisorService;
 
 public class EmisorService : IEmisorService
 {
-    private IHttpClientFactory _httpFactory;
+    private HttpClient _httpClient;
 
     public EmisorService(IHttpClientFactory httpFactory)
     {
-        _httpFactory = httpFactory;
+        _httpClient = httpFactory.CreateClient(Constants.HttpConstants.HttpClientName);
     }
 
     public async Task<ErrorOr<List<Emisor>>> GetAll()
     {
-        using var client = _httpFactory.CreateClient("Ecuasol");
-        var response = await client.GetAsync("Varios/GetEmisor");
+        var response = await _httpClient.GetAsync("Varios/GetEmisor");
 
         if (response is null || !response.IsSuccessStatusCode)
         {

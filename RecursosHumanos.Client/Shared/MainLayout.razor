@@ -1,0 +1,28 @@
+﻿@inherits LayoutComponentBase;
+
+@using Microsoft.AspNetCore.Components.Authorization
+@using RecursosHumanos.Client.Pages.Auth;
+
+<MudThemeProvider IsDarkMode="true" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<AuthorizeView>
+    <NotAuthorized>
+        <MudAppBar Elevation="4">
+            <MudIcon Icon="@Icons.Custom.Uncategorized.WaterMelon" Size="Size.Large" Color="Color.Tertiary" />
+            <MudSpacer />
+        </MudAppBar>
+        <MudMainContent>
+            <MudContainer MaxWidth="MaxWidth.ExtraSmall" Style="margin-top: 1em;">
+                <Login />
+            </MudContainer>
+        </MudMainContent>
+    </NotAuthorized>
+    <Authorized>
+        <MudLayout>
+            <MainBody>
+                @Body
+            </MainBody>
+        </MudLayout>
+    </Authorized>
+</AuthorizeView>

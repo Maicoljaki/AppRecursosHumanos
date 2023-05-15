@@ -1,0 +1,241 @@
+﻿@page "/movimientoPlanilla/{CodigoConcepto:int}"
+
+@using RecursosHumanos.Client.Services.AplicaIESSService;
+@using RecursosHumanos.Client.Services.AplicaImpuestoRentaService;
+@using RecursosHumanos.Client.Services.Common;
+@using RecursosHumanos.Client.Services.MovimientoExcepcionService;
+@using RecursosHumanos.Client.Services.MovimientoPlanillaService;
+@using RecursosHumanos.Client.Services.TipoOperacionService;
+@using RecursosHumanos.Shared.Models;
+@using RecursosHumanos.Shared.Requests;
+@using RecursosHumanos.Client.Data.Forms;
+
+@inject NavigationManager _navManager;
+@inject DialogMsgService _dialogService;
+@inject IMovimientoPlanillaService _movimientoPlanillaService;
+@inject IMovimientoExcepcionService _movimientoExcepcionService;
+@inject ITipoOperacionService _tipoOperacionService;
+@inject IAplicaIESSService _aplicaIessService;
+@inject IAplicaImpuestoRentaService _aplicaImpuestoRentaService;
+
+@if (_loading)
+{
+    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+}
+else
+{
+
+    <EditForm Model="@_form" OnValidSubmit="@(async (e) => await Guardar())" OnInvalidSubmit="@(() => Invalid())">
+        <DataAnnotationsValidator />
+        <MudCard>
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Movimiento Planilla</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                @if (!_EsNuevo)
+                {
+                    <MudNumericField Label="Código de Concepto"
+                             @bind-Value="_form.CodigoConcepto" For="@(() => _form.CodigoConcepto)" Disabled="true" />
+                }
+                <MudTextField Label="Concepto" Class="mt-3"
+                          @bind-Value="_form.Concepto" For="@(() => _form.Concepto)" />
+                <MudNumericField Label="Prioridad" Min="1" Max="3"
+                             @bind-Value="_form.Prioridad" For="@(() => _form.Prioridad)" />
+                <MudTextField Label="Cuenta 1" Class="mt-3"
+                          @bind-Value="_form.Cuenta1" For="@(() => _form.Cuenta1)" />
+                <MudTextField Label="Cuenta 2" Class="mt-3"
+                          @bind-Value="_form.Cuenta2" For="@(() => _form.Cuenta2)" />
+                <MudTextField Label="Cuenta 3" Class="mt-3"
+                          @bind-Value="_form.Cuenta3" For="@(() => _form.Cuenta3)" />
+                <MudTextField Label="Cuenta 4" Class="mt-3"
+                          @bind-Value="_form.Cuenta4" For="@(() => _form.Cuenta4)" />
+                <MudSelect T="string" Label="Tipo Operacion" @bind-Value="_form.CodigoTipoOperacion" For="@(() => _form.CodigoTipoOperacion)">
+                    @foreach (var items in _tiposOperacion)
+                    {
+                        <MudSelectItem Value="items.Codigo">@items.Codigo - @items.Nombre</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudSelect T="string" Label="Movimiento Excepción 1" @bind-Value="_form.CodigoMovimientoExcepcion1" For="@(() => _form.CodigoMovimientoExcepcion1)">
+                    @foreach (var movimiento in _movimientos1y2)
+                    {
+                        <MudSelectItem Value="movimiento.Codigo">@movimiento.Codigo - @movimiento.Nombre</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudSelect T="string" Label="Movimiento Excepción 2" @bind-Value="_form.CodigoMovimientoExcepcion2" For="@(() => _form.CodigoMovimientoExcepcion2)">
+                    @foreach (var movimiento in _movimientos1y2)
+                    {
+                        <MudSelectItem Value="movimiento.Codigo">@movimiento.Codigo - @movimiento.Nombre</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudSelect T="string" Label="Movimiento Excepción 3" @bind-Value="_form.CodigoMovimientoExcepcion3" For="@(() => _form.CodigoMovimientoExcepcion3)">
+                    @foreach (var movimiento in _movimientos3)
+                    {
+                        <MudSelectItem Value="movimiento.Codigo">@movimiento.Codigo - @movimiento.Nombre</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudSelect T="string" Label="Aplica IESS" @bind-Value="_form.CodigoAplicaIESS" For="@(() => _form.CodigoAplicaIESS)">
+                    @foreach (var item in _listaAplicaIess)
+                    {
+                        <MudSelectItem Value="item.Codigo">@item.Nombre</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudSelect T="string" Label="Aplica Impuesto Renta" @bind-Value="_form.CodigoAplicaImpuestoRenta" For="@(() => _form.CodigoAplicaImpuestoRenta)">
+                    @foreach (var item in _listaAplicaImpuestoRenta)
+                    {
+                        <MudSelectItem Value="item.Codigo">@item.Nombre</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudSelect T="string" Label="Empresa Aplica IESS" @bind-Value="_form.CodigoEmpresaIESS" For="@(() => _form.CodigoEmpresaIESS)">
+                    @foreach (var item in _listaAplicaIess)
+                    {
+                        <MudSelectItem Value="item.Codigo">@item.Nombre</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudTextField Label="Mensaje (opcional)" Class="mt-3" Lines="2" Variant="Variant.Filled"
+                          @bind-Value="_form.Mensaje" For="@(() => _form.Mensaje)" />
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">Guardar</MudButton>
+                <MudSpacer />
+                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="@Salir">Salir</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int CodigoConcepto { get; set; } = 0;
+
+    private bool _loading = false;
+    private bool _EsNuevo => CodigoConcepto is 0;
+    private MovimientoPlanillaForm _form = new();
+
+    private List<TipoOperacion> _tiposOperacion = new();
+    private List<MovimientoExcepcion> _movimientos1y2 = new();
+    private List<MovimientoExcepcion> _movimientos3 = new();
+    private List<AplicaIESS> _listaAplicaIess = new();
+    private List<AplicaImpuestoRenta> _listaAplicaImpuestoRenta = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!firstRender)
+            return;
+
+        await Cargar();
+    }
+
+    private async Task Cargar()
+    {
+        _loading = true;
+        StateHasChanged();
+
+        try
+        {
+            _tiposOperacion = await _tipoOperacionService.GetAll();
+            _movimientos1y2 = await _movimientoExcepcionService.GetAll1y2();
+            _movimientos3 = await _movimientoExcepcionService.GetAll3();
+            _listaAplicaIess = await _aplicaIessService.GetAll();
+            _listaAplicaImpuestoRenta = await _aplicaImpuestoRentaService.GetAll();
+
+            if (_EsNuevo)
+            {
+                _form = new();
+            }
+            else
+            {
+                var planilla = await _movimientoPlanillaService.GetByCodigoConcepto(CodigoConcepto);
+                CodigoConcepto = planilla.CodigoConcepto;
+                _form = new MovimientoPlanillaForm
+                    {
+                        CodigoConcepto = planilla.CodigoConcepto,
+                        Concepto = planilla.Concepto,
+                        Prioridad = planilla.Prioridad,
+                        Cuenta1 = planilla.Cuenta1,
+                        Cuenta2 = planilla.Cuenta2,
+                        Cuenta3 = planilla.Cuenta3,
+                        Cuenta4 = planilla.Cuenta4,
+                        Mensaje = planilla.Mensaje,
+                    };
+            }
+        }
+        catch (Exception e)
+        {
+            await _dialogService.ShowDialogAsync(e.Message, true);
+        }
+        finally
+        {
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async void Invalid()
+    {
+        await _dialogService.ShowDialogAsync("Invalid", true);
+    }
+
+    private async Task Guardar()
+    {
+        try
+        {
+            if (_EsNuevo)
+            {
+
+                InsertMovimientoPlanillaRequest movimiento = new(
+                    _form.Concepto,
+                    _form.Prioridad,
+                    _form.CodigoTipoOperacion,
+                    _form.Cuenta1,
+                    _form.Cuenta2,
+                    _form.Cuenta3,
+                    _form.Cuenta4,
+                    _form.CodigoMovimientoExcepcion1,
+                    _form.CodigoMovimientoExcepcion2,
+                    _form.CodigoMovimientoExcepcion3,
+                    _form.CodigoAplicaIESS,
+                    _form.CodigoAplicaImpuestoRenta,
+                    _form.CodigoEmpresaIESS,
+                    _form.Mensaje);
+                await _movimientoPlanillaService.Insert(movimiento);
+            }
+            else
+            {
+                UpdateMovimientoPlanillaRequest movimiento = new(
+                    _form.CodigoConcepto,
+                    _form.Concepto,
+                    _form.Prioridad,
+                    _form.CodigoTipoOperacion,
+                    _form.Cuenta1,
+                    _form.Cuenta2,
+                    _form.Cuenta3,
+                    _form.Cuenta4,
+                    _form.CodigoMovimientoExcepcion1,
+                    _form.CodigoMovimientoExcepcion2,
+                    _form.CodigoMovimientoExcepcion3,
+                    _form.CodigoAplicaIESS,
+                    _form.CodigoAplicaImpuestoRenta,
+                    _form.CodigoEmpresaIESS,
+                    _form.Mensaje);
+                await _movimientoPlanillaService.Update(movimiento);
+            }
+        }
+        catch (Exception e)
+        {
+            await _dialogService.ShowDialogAsync(e.Message, true);
+        }
+        finally
+        {
+            _navManager.NavigateTo("/movimientoPlanilla");
+        }
+    }
+
+    private void Salir()
+    {
+        _navManager.NavigateTo("/movimientoPlanilla");
+    }
+}

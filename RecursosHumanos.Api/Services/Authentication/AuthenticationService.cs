@@ -14,19 +14,18 @@ namespace RecursosHumanos.Api.Services.Authentication;
 
 public class AuthenticationService : IAuthenticationService
 {
-    private IHttpClientFactory _httpFactory;
+    private HttpClient _httpClient;
     private IJwtTokenGenerator _jwtTokenGenerator;
 
     public AuthenticationService(IHttpClientFactory httpFactory, IJwtTokenGenerator jwtTokenGenerator)
     {
-        _httpFactory = httpFactory;
+        _httpClient = httpFactory.CreateClient(Constants.HttpConstants.HttpClientName);
         _jwtTokenGenerator = jwtTokenGenerator;
     }
 
     public async Task<ErrorOr<UsuarioAutenticado>> LogIn(string username, string password, int codigoEmisor)
     {
-        using var client = _httpFactory.CreateClient("Ecuasol");
-        var response = await client.GetAsync($"Usuarios?usuario={username}&password={password}");
+        var response = await _httpClient.GetAsync($"Usuarios?usuario={username}&password={password}");
 
         if (response is null || !response.IsSuccessStatusCode)
         {
@@ -77,13 +76,13 @@ public class AuthenticationService : IAuthenticationService
             return GeneralErrors.NotFound;
         }
 
-        var keys = new string[]{ "nombre", "ruc", "emisor" };
+        var keys = new string[]{ "nombre", "empresa" };
         foreach (var key in keys)
         {
             if (!claims.ContainsKey(key))
                 return GeneralErrors.NotFound;
         }
 
-        return new Usuario(claims["nombre"], claims["ruc"], claims["emisor"]);
+        return new Usuario(claims["nombre"], claims["empresa"], DateTime.Today);
     }
 }

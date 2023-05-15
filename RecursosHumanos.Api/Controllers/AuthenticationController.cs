@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RecursosHumanos.Api.Services.Authentication;
 using RecursosHumanos.Shared.Requests;
 
@@ -15,6 +16,7 @@ public class AuthenticationController : RecursosHumanosApi
     }
 
     [HttpPost("login")]
+    [AllowAnonymous]
     public async Task<IActionResult> LogIn(LoginRequest loginRequest)
     {
         var loginResult = await _authenticationService.LogIn(

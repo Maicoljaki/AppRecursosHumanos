@@ -39,14 +39,14 @@ namespace RecursosHumanos.Api.Controllers
             return centroCostosResult.Match(Ok, Problem);
         }
 
-        [HttpPost("update")]
+        [HttpPut("update")]
         public async Task<IActionResult> Update(CentroCostosRequest request)
         {
             var centroCostosResult = await _centroCostosService.Update(request.Codigo, request.Nombre);
             return centroCostosResult.Match(Ok, Problem);
         }
 
-        [HttpPost("delete")]
+        [HttpDelete("delete")]
         public async Task<IActionResult> Delete(CentroCostosRequest request)
         {
             var centroCostosResult = await _centroCostosService.Delete(request.Codigo, request.Nombre);

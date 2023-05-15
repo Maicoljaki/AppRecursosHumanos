@@ -1,7 +1,12 @@
 using RecursosHumanos.Api.Auth;
+using RecursosHumanos.Api.Services.AplicaIESSService;
+using RecursosHumanos.Api.Services.AplicaImpuestoRentaService;
 using RecursosHumanos.Api.Services.Authentication;
 using RecursosHumanos.Api.Services.CentroCostosService;
 using RecursosHumanos.Api.Services.EmisorService;
+using RecursosHumanos.Api.Services.MovimientoExcepcionService;
+using RecursosHumanos.Api.Services.MovimientoPlanillaService;
+using RecursosHumanos.Api.Services.TipoOperacionService;
 using RecursosHumanos.Api.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +24,11 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
     builder.Services.AddScoped<IEmisorService, EmisorService>();
     builder.Services.AddScoped<ICentroCostosService, CentroCostosService>();
+    builder.Services.AddScoped<ITipoOperacionService, TipoOperacionService>();
+    builder.Services.AddScoped<IMovimientoExcepcionService, MovimientoExcepcionService>();
+    builder.Services.AddScoped<IAplicaIESSService, AplicaIESSService>();
+    builder.Services.AddScoped<IAplicaImpuestoRentaService, AplicaImpuestoRentaService>();
+    builder.Services.AddScoped<IMovimientoPlanillaService, MovimientoPlanillaService>();
 
     builder.Services.AddCors(c =>
     {

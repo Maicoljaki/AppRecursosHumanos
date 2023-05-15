@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RecursosHumanos.Api.Services.EmisorService;
 
@@ -15,6 +16,7 @@ public class EmisorController : RecursosHumanosApi
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAll()
     {
         var emisoresResult = await _emisorService.GetAll();

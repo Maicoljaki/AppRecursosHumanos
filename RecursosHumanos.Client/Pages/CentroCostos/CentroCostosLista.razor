@@ -1,0 +1,101 @@
+﻿@page "/centroCostos"
+
+@using RecursosHumanos.Client.Services.CentroCostosService;
+@using RecursosHumanos.Client.Services.Common;
+@using RecursosHumanos.Shared.Models;
+
+@inject ICentroCostosService _centroCostosService;
+@inject DialogMsgService _dialogService;
+@inject NavigationManager _navManager;
+
+<MudTable Items="@_items" Filter="@((element) => Filter(element, _searchString))">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Centros de Costos</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Código</MudTh>
+        <MudTh>Nombre</MudTh>
+        <MudTh></MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.Codigo</MudTd>
+        <MudTd>@context.Nombre</MudTd>
+        <MudTd>
+            <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" Size="Size.Small" OnClick="@(() => Editar(@context))" />
+        </MudTd>
+        <MudTd>
+            <MudFab Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick="@(() => Borrar(@context))" />
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager RowsPerPageString="Filas" />
+    </PagerContent>
+</MudTable>
+<MudFab Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" Label="Nuevo" Style="margin-top:1em;" OnClick="@Nuevo"/>
+
+@code {
+    private string _searchString = "";
+    private List<CentroCostos> _items = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!firstRender)
+            return;
+
+        await Cargar();
+
+    }
+
+    private async Task Cargar()
+    {
+        try
+        {
+            _items = await _centroCostosService.GetAll();
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            await _dialogService.ShowDialogAsync(e.Message, true);
+        }
+    }
+
+    private void Editar(CentroCostos item)
+    {
+        _navManager.NavigateTo($"centroCostos/{item.Codigo}");
+    }
+
+    private async void Borrar(CentroCostos item)
+    {
+        try
+        {
+            await _centroCostosService.Delete(item);
+            await _dialogService.ShowDialogAsync($"Eliminado {item.Nombre}", true);
+            await Cargar();
+        }
+        catch (Exception e)
+        {
+            await _dialogService.ShowDialogAsync(e.Message);
+        }
+    }
+
+    private void Nuevo()
+    {
+        _navManager.NavigateTo($"centroCostos/{0}");
+    }
+
+    private bool Filter(CentroCostos centroCostos, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (centroCostos.Codigo.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (centroCostos.Nombre.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+}

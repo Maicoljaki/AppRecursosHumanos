@@ -8,17 +8,16 @@ namespace RecursosHumanos.Api.Services.CentroCostosService;
 
 public class CentroCostosService : ICentroCostosService
 {
-    private IHttpClientFactory _httpClientFactory;
+    private HttpClient _httpClient;
 
     public CentroCostosService(IHttpClientFactory httpClientFactory)
     {
-        _httpClientFactory = httpClientFactory;
+        _httpClient = httpClientFactory.CreateClient(Constants.HttpConstants.HttpClientName);
     }
 
     public async Task<ErrorOr<List<CentroCostos>>> GetAll()
     {
-        using var client = _httpClientFactory.CreateClient("Ecuasol");
-        var response = await client.GetAsync("Varios/CentroCostosSelect");
+        var response = await _httpClient.GetAsync("Varios/CentroCostosSelect");
 
         if (response is null || !response.IsSuccessStatusCode)
         {
@@ -34,8 +33,7 @@ public class CentroCostosService : ICentroCostosService
 
     public async Task<ErrorOr<CentroCostos>> Insert(int Codigo, string Nombre)
     {
-        using var client = _httpClientFactory.CreateClient("Ecuasol");
-        var response = await client.GetAsync($"Varios/CentroCostosInsert?codigocentrocostos={Codigo}&descripcioncentrocostos={Nombre}");
+        var response = await _httpClient.GetAsync($"Varios/CentroCostosInsert?codigocentrocostos={Codigo}&descripcioncentrocostos={Nombre}");
 
         if (response is null || !response.IsSuccessStatusCode)
         {
@@ -54,8 +52,7 @@ public class CentroCostosService : ICentroCostosService
 
     public async Task<ErrorOr<CentroCostos>> Update(int Codigo, string Nombre)
     {
-        using var client = _httpClientFactory.CreateClient("Ecuasol");
-        var response = await client.GetAsync($"Varios/CentroCostosUpdate?codigocentrocostos={Codigo}&descripcioncentrocostos={Nombre}");
+        var response = await _httpClient.GetAsync($"Varios/CentroCostosUpdate?codigocentrocostos={Codigo}&descripcioncentrocostos={Nombre}");
 
         if (response is null || !response.IsSuccessStatusCode)
         {
@@ -67,8 +64,7 @@ public class CentroCostosService : ICentroCostosService
 
     public async Task<ErrorOr<CentroCostos>> Delete(int Codigo, string Nombre)
     {
-        using var client = _httpClientFactory.CreateClient("Ecuasol");
-        var response = await client.GetAsync($"Varios/CentroCostosDelete?codigocentrocostos={Codigo}&descripcioncentrocostos={Nombre}");
+        var response = await _httpClient.GetAsync($"Varios/CentroCostosDelete?codigocentrocostos={Codigo}&descripcioncentrocostos={Nombre}");
 
         if (response is null || !response.IsSuccessStatusCode)
         {
