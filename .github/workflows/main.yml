@@ -1,4 +1,4 @@
-name: Deploy Blazor Wasm App to GitHub Pages
+name: Deploy Blazor Wasm App to GitHub Page
 on:
   push:
     branches:
