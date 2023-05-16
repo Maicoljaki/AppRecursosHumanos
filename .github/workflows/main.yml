@@ -17,10 +17,8 @@ jobs:
           dotnet-version: 7.0.x
       - name: Install .NET WASM Build Tools
         run: dotnet workload install wasm-tools
-      - name: Navigate to App.Client directory and show
-        run: cd RecursosHumanos.Client; ls
       - name: Publish .NET Core Project
-        run: dotnet publish -c:Release -p:GHPages=true -o dist/Web --nologo
+        run: cd RecursosHumanos.Client; dotnet publish -c:Release -p:GHPages=true -o dist/Web --nologo
       - name: Commit wwwroot to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
