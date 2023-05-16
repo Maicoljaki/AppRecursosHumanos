@@ -36,7 +36,7 @@ builder.Services
                 .EnableIntercept(sp))
             .AddHttpClient(HttpConstants.HttpClientName, c =>
             {
-                c.BaseAddress = new Uri("https://localhost:7277/api/");
+                c.BaseAddress = new Uri("http://rrhhudla.somee.com/api/");
             })
             .AddHttpMessageHandler<AuthenticationHeaderHandler>();
 

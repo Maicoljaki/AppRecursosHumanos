@@ -14,6 +14,7 @@ public class EmisorService : IEmisorService
 
     public async Task<List<Emisor>> GetAll()
     {
+        Console.WriteLine("Test");
         return await _restClientService.Get<List<Emisor>>("emisor") ?? new();
     }
 }
